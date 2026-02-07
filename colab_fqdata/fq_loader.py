@@ -3,6 +3,7 @@ import pandas as pd
 import re
 import os
 import logging
+from typing import Union, Iterable, Any
 
 # --- 警告抑制を追加 ---
 logging.getLogger('google_auth_httplib2').setLevel(logging.ERROR)
