@@ -2,6 +2,10 @@ import sqlite3
 import pandas as pd
 import re
 import os
+import logging
+
+# --- 警告抑制を追加 ---
+logging.getLogger('google_auth_httplib2').setLevel(logging.ERROR)
 
 # Google Colab専用のライブラリ（認証・Drive操作用）
 try:
