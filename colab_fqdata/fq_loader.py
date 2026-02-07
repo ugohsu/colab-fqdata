@@ -142,8 +142,19 @@ class FqLoader:
     def close(self):
         if self.conn:
             self.conn.close()
-            self.conn = None # 念のためNoneにしておく
+            self.conn = None
+
+    def __enter__(self):
+        """with構文の開始時に呼ばれる"""
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """with構文を抜ける時に呼ばれる（自動close）"""
+        self.close()
 
     def __del__(self):
-        """ガベージコレクション時に呼ばれる安全装置"""
-        self.close()
+        """変数が上書き/削除された時に呼ばれる（保険）"""
+        try:
+            self.close()
+        except Exception:
+            pass
