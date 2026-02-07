@@ -142,3 +142,8 @@ class FqLoader:
     def close(self):
         if self.conn:
             self.conn.close()
+            self.conn = None # 念のためNoneにしておく
+
+    def __del__(self):
+        """ガベージコレクション時に呼ばれる安全装置"""
+        self.close()
