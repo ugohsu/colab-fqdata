@@ -88,7 +88,7 @@ class FqLoader:
 
     def read_sql(self, sql: str, filter_list: Union[Iterable[Any], None] = None, key_col: str = "証券コード"):
         """
-        任意のSQLを実行し、DataFrameを返す。
+        任意のSQLクエリを実行し、DataFrameを返す。
         filter_list が指定された場合、一時テーブルを作成して key_col で絞り込む。
         
         Args:
