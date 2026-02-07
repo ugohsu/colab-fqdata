@@ -86,7 +86,7 @@ class FqLoader:
                 status, done = downloader.next_chunk()
                 # print(f"Download {int(status.progress() * 100)}%.")
 
-    def read_sql(self, sql: str, filter_list: list = None, key_col: str = "証券コード"):
+    def read_sql(self, sql: str, filter_list: Union[Iterable[Any], None] = None, key_col: str = "証券コード"):
         """
         任意のSQLを実行し、DataFrameを返す。
         filter_list が指定された場合、一時テーブルを作成して key_col で絞り込む。
@@ -115,12 +115,12 @@ class FqLoader:
         try:
             with self.conn:
                 # 2. 一時テーブル作成
-                self.conn.execute("CREATE TEMP TABLE IF NOT EXISTS _ai_filter_list (code TEXT PRIMARY KEY)")
-                self.conn.execute("DELETE FROM _ai_filter_list")
+                self.conn.execute("CREATE TEMP TABLE IF NOT EXISTS _temp_filter_keys (code TEXT PRIMARY KEY)")
+                self.conn.execute("DELETE FROM _temp_filter_keys")
                 
                 # 3. 高速流し込み
                 self.conn.executemany(
-                    "INSERT OR IGNORE INTO _ai_filter_list (code) VALUES (?)", 
+                    "INSERT OR IGNORE INTO _temp_filter_keys (code) VALUES (?)", 
                     [(c,) for c in clean_codes]
                 )
                 
@@ -129,7 +129,7 @@ class FqLoader:
                 wrapper_query = f"""
                     SELECT UserQuery.*
                     FROM ({clean_sql}) AS UserQuery
-                    INNER JOIN _ai_filter_list AS Filter
+                    INNER JOIN _temp_filter_keys AS Filter
                     ON UserQuery.{key_col} = Filter.code
                 """
                 
@@ -137,7 +137,7 @@ class FqLoader:
                 
         finally:
             # クリーンアップ（必須ではないがメモリ節約のため）
-            self.conn.execute("DROP TABLE IF EXISTS _ai_filter_list")
+            self.conn.execute("DROP TABLE IF EXISTS _temp_filter_keys")
 
     def close(self):
         if self.conn:
