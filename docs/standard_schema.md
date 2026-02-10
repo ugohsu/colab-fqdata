@@ -1,4 +1,106 @@
-## Standard テーブルに収録されている勘定科目一覧
+# Standard Database Schema (`standard_schema.md`)
+
+`standard.db` は、企業の財務データを正規化して格納した SQLite データベースです。
+以下の 3 つのテーブルと 1 つのビューで構成されています。
+
+## ER 図（概念）
+
+```mermaid
+erDiagram
+    Companies ||--o{ Standard : "NCODE (1:N)"
+    Standard ||--|| Ratios : "std_id (1:1)"
+
+    Companies {
+        text NCODE PK "企業ID (Ex. N1234)"
+        text 企業名
+        text 日経業種中分類名
+    }
+    Standard {
+        integer std_id PK "ユニークID"
+        text NCODE FK
+        integer 年度 "Fiscal Year"
+        text 決算期 "YYYYMM"
+        integer 決算月数
+        integer 売上高
+        integer 営業利益
+        integer 総資産
+    }
+    Ratios {
+        integer std_id PK,FK
+        real ROE
+        real ROA
+        real 自己資本比率
+    }
+
+```
+
+---
+
+## テーブル定義
+
+### 1. Companies (企業マスタ)
+
+企業属性に関するマスタテーブルです。`NCODE` が主キーとなります。
+
+| カラム名 | 型 | 説明 |
+| --- | --- | --- |
+| **NCODE** | TEXT | **[PK]** 日経会社コードの先頭に "N" を付した一意の識別子 |
+| 日経会社コード | TEXT | 日経会社コード |
+| 企業名 | TEXT | 企業名 |
+| 日経業種小分類 | TEXT | 日経業種コード（小分類） |
+| 日経業種小分類名 | TEXT | 日経業種名（小分類） |
+| 日経業種中分類 | TEXT | 日経業種コード（中分類） |
+| 日経業種中分類名 | TEXT | 日経業種名（中分類） |
+
+### 2. Standard (財務データ)
+
+財務諸表（BS/PL/CF）およびその他の主要項目を格納するテーブルです。`std_id` が主キーです。
+※各項目の詳細な定義は、後述の「勘定科目一覧」を参照してください。
+
+| カラム名 | 型 | 説明 |
+| --- | --- | --- |
+| **std_id** | INTEGER | **[PK]** レコード固有の連番ID |
+| NCODE | TEXT | **[FK]** 企業ID (Companiesテーブル参照) |
+| 決算期 | TEXT | 決算年月 (YYYYMM) |
+| 年度 | INTEGER | 会計年度 (Fiscal Year) ※5月決算以前は前年扱い |
+| 証券コード | TEXT | 証券コード |
+| 決算月数 | INTEGER | 決算対象期間の月数 (通常は12) |
+| (BS項目) | INTEGER | 流動資産, 総資産, 利益剰余金 など |
+| (PL項目) | INTEGER | 売上高, 営業利益, 当期純利益 など |
+| (CF項目) | INTEGER | 営業CF, 投資CF, 財務CF など |
+| (その他) | INTEGER | 設備投資額, 従業員数 など |
+
+### 3. Ratios (財務指標)
+
+`Standard` テーブルのデータをもとに計算された財務指標です。`Standard` と 1対1 で対応します。
+
+| カラム名 | 型 | 計算式・説明 |
+| --- | --- | --- |
+| **std_id** | INTEGER | **[PK, FK]** Standardテーブルと結合 |
+| ROA | REAL | 営業利益 / 前期末総資産 |
+| ROE | REAL | 当期純利益 / (前期末総資産 - 前期末総負債) |
+| ATO | REAL | 売上高 / 前期末総資産 (総資産回転率) |
+| PM | REAL | 営業利益 / 売上高 (売上高営業利益率) |
+| 流動比率 | REAL | 流動資産 / 流動負債 |
+| 当座比率 | REAL | (現金預金 + 売上債権 + 有価証券) / 流動負債 |
+| 自己資本比率 | REAL | (総資産 - 総負債) / 総資産 |
+| 有利子負債依存率 | REAL | (借入金 + 社債 + リース債務) / 総資産 |
+| 総資本留保利益率 | REAL | 利益剰余金 / 総資産 |
+| ICR | REAL | 営業利益 / 支払利息 (インタレスト・カバレッジ・レシオ) |
+| 経常収支比率 | REAL | 経常的収入 / (経常的収入 - 営業CF) |
+| CICR | REAL | -1 * 営業CF / 利息支払額 |
+| 有利子負債返済年数 | REAL | 有利子負債 / 営業CF |
+
+### 4. view_primary (主要データビュー)
+
+分析によく利用される主要項目を `Companies`, `Standard`, `Ratios` から結合し、`決算月数 = 12` のデータのみに絞り込んだビューです。
+
+* **結合条件**: `Standard` をベースに `Companies` (NCODE) と `Ratios` (std_id) を左外部結合
+* **フィルタ**: `WHERE 決算月数 = 12`
+
+---
+
+## 勘定科目一覧 (Standard テーブル詳細)
 
 ### 1. 貸借対照表 (BS)
 
