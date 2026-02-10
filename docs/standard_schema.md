@@ -11,25 +11,24 @@ erDiagram
     Standard ||--|| Ratios : "std_id (1:1)"
 
     Companies {
-        text NCODE PK "企業ID (Ex. N1234)"
+        text NCODE PK "企業ID"
         text 企業名
-        text 日経業種中分類名
+        integer 日経業種中分類 "..."
+        string others "..."
     }
     Standard {
         integer std_id PK "ユニークID"
         text NCODE FK
         integer 年度 "Fiscal Year"
         text 決算期 "YYYYMM"
-        integer 決算月数
-        integer 売上高
-        integer 営業利益
-        integer 総資産
+        integer 売上高 "..."
+        integer others "..."
     }
     Ratios {
         integer std_id PK,FK
         real ROE
         real ROA
-        real 自己資本比率
+        real others "..."
     }
 
 ```
@@ -45,11 +44,11 @@ erDiagram
 | カラム名 | 型 | 説明 |
 | --- | --- | --- |
 | **NCODE** | TEXT | **[PK]** 日経会社コードの先頭に "N" を付した一意の識別子 |
-| 日経会社コード | TEXT | 日経会社コード |
+| 日経会社コード | INTEGER | 日経会社コード |
 | 企業名 | TEXT | 企業名 |
-| 日経業種小分類 | TEXT | 日経業種コード（小分類） |
+| 日経業種小分類 | INTEGER | 日経業種コード（小分類） |
 | 日経業種小分類名 | TEXT | 日経業種名（小分類） |
-| 日経業種中分類 | TEXT | 日経業種コード（中分類） |
+| 日経業種中分類 | INTEGER | 日経業種コード（中分類） |
 | 日経業種中分類名 | TEXT | 日経業種名（中分類） |
 
 ### 2. Standard (財務データ)
@@ -161,6 +160,7 @@ erDiagram
 
 | 抽出名 | 項目コード | 項目名 | 備考 |
 | :--- | :--- | :--- | :--- |
+| 年度 |  | | Compustat 基準に準拠して計算された会計年度 (Fiscal Year)。決算月が1〜5月の場合、暦年 - 1 を年度とする(例: 2020年3月決算 → 2019年度)。6〜12月は暦年通り。 |
 |日経会社コード| NKCODE | 日経会社コード | 日経が定める会社コード |
 | NCODE | |  | 日経会社コードの先頭に "N" を付したコード |
 | 決算期 | ACC | 決算期 | YYYYMM の 6 ケタ整数で表示された決算期 |
