@@ -92,12 +92,7 @@ erDiagram
 
 ### 4. view_primary (主要データビュー)
 
-分析によく利用される主要項目を `Companies`, `Standard`, `Ratios` から結合し、`決算月数 = 12` のデータのみに絞り込んだビューです。
-
-* **結合条件**: `Standard` をベースに `Companies` (NCODE) と `Ratios` (std_id) を左外部結合
-* **フィルタ**: `WHERE 決算月数 = 12`
-
-具体的には以下のクエリで作成されています。
+以下のクエリによって、主要データのビューが作成されています。
 
 ```sql
 CREATE VIEW view_primary AS
