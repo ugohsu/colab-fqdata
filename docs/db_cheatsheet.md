@@ -1,6 +1,6 @@
 # standard.db チートシート（SQL / tidyverse / pandas）
 
-## 0. スキーマ前提（最重要）
+## 0. スキーマ前提
 
 * **企業マスタ**: `Companies`（PK: `NCODE`） 
 * **財務データ**: `Standard`（PK: `std_id`、FK: `NCODE`、`年度`/`決算期`/`決算月数` など） 
