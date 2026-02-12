@@ -46,7 +46,7 @@ plt.show()
 
 ```r
 # 1. データ準備
-target_inds <- c("食料品", "医薬品", "小売業")
+target_inds <- c("食品", "医薬品", "小売業")
 
 df_trend <- df %>%
     filter(
@@ -67,7 +67,7 @@ ggplot(df_trend, aes(x = 年度, y = ROA_median, color = 日経業種中分類�
 
 ```python
 # 1. データ準備
-target_inds = ["食料品", "医薬品", "小売業"]
+target_inds = ["食品", "医薬品", "小売業"]
 
 df_trend = (
     df
@@ -125,10 +125,10 @@ df_industry %>%
 
 ```python
 # 1. まず「業界」に絞る
-df_industry = df[df['日経業種中分類名'] == '電設工事']
+df_industry = df.loc[lambda x: x["日経業種小分類名"] == "電設工事"]
 
 # 2. その中から「自社」を取り出す
-target = df_industry[df_industry['企業名'] == '株式会社サクラ']
+target = df_industry.loc[lambda x: x['企業名'] == '株式会社サクラ']
 
 fig, ax = plt.subplots(figsize=(8, 5))
 

@@ -193,11 +193,11 @@ result = your_df.merge(companies_df, left_on="company_id", right_on="NCODE", how
 
 ```r
 long_rat <- df %>%
-  pivot_longer(
-    cols = c(ROA, ROE, ATO, PM),
-    names_to = "指標",
-    values_to = "値"
-  )
+    pivot_longer(
+        cols = c(ROA, ROE, ATO, PM),
+        names_to = "指標",
+        values_to = "値"
+    )
 ```
 
 **pandas（melt）**
