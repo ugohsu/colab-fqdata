@@ -93,8 +93,8 @@ fatal: destination path 'colab-fqdata' already exists
 | 分類 | 内容 | ドキュメント |
 | --- | --- | --- |
 | **Schema** | データベース定義書（テーブル構造・カラム定義・ER図） | [`docs/standard_schema.md`](docs/standard_schema.md) |
-| **Cookbook** | 財務データ操作チートシート（SQL / Python / R 対応表・レシピ集） | [`docs/query_cookbook.md`](docs/query_cookbook.md) |
-| **Cookbook** | 財務データ可視化チートシート（ggplot2 / matplotlib / seaborn） | [`docs/visualization_cookbook.md`](docs/visualization_cookbook.md) |
+| **Cookbook** | 財務データ操作クックブック（SQL / Python / R 対応表・レシピ集） | [`docs/query_cookbook.md`](docs/query_cookbook.md) |
+| **Cookbook** | 財務データ可視化クックブック（ggplot2 / matplotlib / seaborn） | [`docs/visualization_cookbook.md`](docs/visualization_cookbook.md) |
 
 ---
 
