@@ -94,6 +94,8 @@ plt.show()
 
 ```
 
+![](../fig/vis2.1.png)
+
 
 ### 2.2 分布と特定企業の強調
 
@@ -144,3 +146,5 @@ sns.stripplot(data=target, x='年度', y='流動比率', color='red', size=10, z
 plt.show()
 
 ```
+
+![](../fig/vis2.2.png)
