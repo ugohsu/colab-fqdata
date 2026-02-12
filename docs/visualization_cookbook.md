@@ -113,7 +113,7 @@ df_industry <- df %>%
 
 # 2. その中から「自社」を取り出す
 target <- df_industry %>% 
-    filter(企業名 == "株式会社サクラ")
+    filter(企業名 == "ダミー会社名")
 
 df_industry %>%
     ggplot(aes(x = factor(年度), y = 流動比率)) +
@@ -133,7 +133,7 @@ df_industry %>%
 df_industry = df.loc[lambda x: x["日経業種小分類名"] == "電設工事"]
 
 # 2. その中から「自社」を取り出す
-target = df_industry.loc[lambda x: x['企業名'] == '株式会社サクラ']
+target = df_industry.loc[lambda x: x['企業名'] == 'ダミー会社名']
 
 fig, ax = plt.subplots(figsize=(8, 5))
 
