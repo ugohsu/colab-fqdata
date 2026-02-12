@@ -49,19 +49,17 @@ plt.show()
 target_inds <- c("食料品", "医薬品", "小売業")
 
 df_trend <- df %>%
-  filter(
-    日経業種中分類名 %in% target_inds,
-    年度 >= 2020, 年度 <= 2024
-  ) %>%
-  group_by(年度, 日経業種中分類名) %>%
-  summarise(ROA_median = median(ROA, na.rm = TRUE), .groups = "drop")
+    filter(
+        日経業種中分類名 %in% target_inds,
+        年度 >= 2020, 年度 <= 2024
+    ) %>%
+    group_by(年度, 日経業種中分類名) %>%
+    summarise(ROA_median = median(ROA, na.rm = TRUE), .groups = "drop")
 
 # 2. 描画
 ggplot(df_trend, aes(x = 年度, y = ROA_median, color = 日経業種中分類名)) +
-  geom_line() +
-  geom_point() +
-  scale_x_continuous(breaks = 2020:2024) +
-  labs(y = "ROA (中央値)")
+    geom_line() +
+    scale_x_continuous(breaks = 2020:2024)
 
 ```
 
@@ -73,12 +71,10 @@ target_inds = ["食料品", "医薬品", "小売業"]
 
 df_trend = (
     df
-    # フィルタリング (loc + lambda)
     .loc[lambda x:
         (x["日経業種中分類名"].isin(target_inds)) &
         (x["年度"] >= 2020) & (x["年度"] <= 2024)
     ]
-    # 集計 (groupby + agg)
     .groupby(["年度", "日経業種中分類名"], as_index=False)
     .agg(ROA_median=("ROA", "median"))
 )
@@ -90,12 +86,10 @@ sns.lineplot(
     data=df_trend, 
     x="年度", y="ROA_median", 
     hue="日経業種中分類名", 
-    marker="o", 
     ax=ax
 )
 
 ax.set_xticks(range(2020, 2025))
-ax.set_ylabel("ROA (中央値)")
 plt.show()
 
 ```
