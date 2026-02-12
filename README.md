@@ -13,21 +13,18 @@
 ### 手順
 
 1. **Google Colab を開く**
-* ブラウザで [Google Colab](https://www.google.com/search?q=https://colab.research.google.com/) にアクセスします。
+    * ブラウザで [Google Colab](https://colab.research.google.com/) にアクセスします。
 
 
 2. **ノートブックを開く**
-* メニューから **[ファイル]** > **[ノートブックを開く]** を選択します。
-* ポップアップ画面で **[GitHub]** タブを選択します。
-* 検索ボックスにリポジトリの URL（または `ugohsu/colab-fqdata`）を入力して検索します。
+    * メニューから **[ファイル]** > **[ノートブックを開く]** を選択します。
+    * ポップアップ画面で **[GitHub]** タブを選択します。
+    * 検索ボックスにリポジトリの URL（または `ugohsu/colab-fqdata`）を入力して検索します。
 
 
 3. **テンプレートを選択**
-* 表示されたファイル一覧から、以下のファイルを選択して開きます。
-* `templates/fq_loader_template.ipynb`
-
-
-
+    * 表示されたファイル一覧から、以下のファイルを選択して開きます。
+    * `templates/fq_loader_template.ipynb`
 
 
 このノートブックには、ライブラリのインストールからデータの抽出、Google スプレッドシートへの保存までの手順があらかじめ記述されています。画面の指示に従って設定項目（DBのURLなど）を入力し、セルを上から順に実行するだけでデータ抽出が可能です。
@@ -84,10 +81,10 @@ fatal: destination path 'colab-fqdata' already exists
 
 ## 機能一覧（import して使う）
 
-| 分類 | クラス・関数名 | 内容 | 実装ファイル | 解説ドキュメント |
-| --- | --- | --- | --- | --- |
-| **I/O** | `FqLoader` | 財務DBへの接続・SQL実行・データフレーム化を行うメインクラス | [`colab_fqdata/fq_loader.py`](https://www.google.com/search?q=./colab_fqdata/fq_loader.py) | - |
-| **I/O** | `FqLoader.read_sql` | SQLを実行してDataFrameを取得（証券コードリストによるフィルタリング機能付き） | [`colab_fqdata/fq_loader.py`](https://www.google.com/search?q=./colab_fqdata/fq_loader.py) | - |
+| 分類 | クラス・関数名 | 内容 | 実装ファイル |
+| --- | --- | --- | --- |
+| **I/O** | `FqLoader` | 財務DBへの接続・SQL実行・データフレーム化を行うメインクラス | [`colab_fqdata/fq_loader.py`](colab_fqdata/fq_loader.py) |
+| **I/O** | `FqLoader.read_sql` | SQLを実行してDataFrameを取得（証券コードリストによるフィルタリング機能付き） | [`colab_fqdata/fq_loader.py`](colab_fqdata/fq_loader.py) |
 
 ---
 
@@ -95,7 +92,8 @@ fatal: destination path 'colab-fqdata' already exists
 
 | 分類 | 内容 | ドキュメント |
 | --- | --- | --- |
-| **Schema** | データベース定義書（テーブル構造・カラム定義・ER図） | [`docs/standard_schema.md`](https://www.google.com/search?q=./docs/standard_schema.md) |
+| **Schema** | データベース定義書（テーブル構造・カラム定義・ER図） | [`docs/standard_schema.md`](docs/standard_schema.md) |
+| **Cookbook** | 財務データ操作チートシート（SQL / Python / R 対応表・レシピ集） | [`docs/query_cookbook.md`](docs/query_cookbook.md) |
 
 ---
 
@@ -105,7 +103,7 @@ fatal: destination path 'colab-fqdata' already exists
 
 ### データベースの構造
 
-主なテーブル構成は以下の通りです。詳細は [`docs/standard_schema.md`](https://www.google.com/search?q=./docs/standard_schema.md) を参照してください。
+主なテーブル構成は以下の通りです。詳細は [`docs/standard_schema.md`](docs/standard_schema.md) を参照してください。
 
 * **Companies**: 企業属性（会社名、業種コードなど）
 * **Standard**: 財務諸表データ（BS/PL/CF、主要項目）
