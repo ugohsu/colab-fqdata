@@ -1,4 +1,4 @@
-# 財務データ可視化チートシート (Visualization Cookbook)
+# 財務データ可視化クックブック (Visualization Cookbook)
 
 `colab-fqdata` のデータを R (ggplot2) と Python (matplotlib / seaborn) で可視化するための、シンプルで実践的なレシピ集です。
 

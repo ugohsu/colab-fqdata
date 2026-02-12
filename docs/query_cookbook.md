@@ -1,4 +1,4 @@
-# 財務データ操作チートシート (Query Cookbook)
+# 財務データ操作クックブック (Query Cookbook)
 
 このドキュメントは、`colab-fqdata` のデータを SQL、Python (pandas)、R (tidyverse) で操作する際の対応表と実践例です。
 
