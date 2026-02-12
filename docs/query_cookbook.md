@@ -223,10 +223,10 @@ Section 4 で作ったような tidy データ（指標列・値列）を、元�
 
 ```r
 wide_df <- long_rat %>%
-  pivot_wider(
-    names_from = "指標",
-    values_from = "値"
-  )
+    pivot_wider(
+        names_from = "指標",
+        values_from = "値"
+    )
 
 ```
 
@@ -255,5 +255,79 @@ wide_df = (
     )
     .reset_index()
 )
+
+```
+
+## 6. 要約統計量（describe / summary）
+
+データの分布（平均、標準偏差、四分位数など）を確認します。
+
+### 6.1 基本（全体・年度別）
+
+単純に分布を見るだけなら、デフォルトの関数が便利です。
+
+**tidyverse**
+
+```r
+# 全体
+df %>% select(ROA, ROE) %>% summary()
+
+# 年度別（リスト形式で出力）
+df %>% split(.$年度) %>% map(~ summary(select(., ROA, ROE)))
+
+```
+
+**pandas**
+
+```python
+# 全体
+df[["ROA", "ROE"]].describe()
+
+# 年度別
+df.groupby("年度")[["ROA", "ROE"]].describe()
+
+```
+
+### 6.2 発展：多変量・多重グループの縦持ち集計 (Tidy format)
+
+「年度×業種」などで集計し、結果を扱いやすい「縦持ち（Long）」形式で取得するテクニックです。
+結果がきれいなテーブルになるため、そのままグラフ描画やファイル保存に使えます。
+
+**tidyverse**
+
+R では「集計したい変数を先に縦持ちにする」のがコツです。
+
+```r
+summary_long <- df %>%
+    select(年度, 日経業種中分類名, ROA, ROE) %>%
+    # 1. まず集計したい指標を縦に積む
+    pivot_longer(cols = c(ROA, ROE), names_to = "指標", values_to = "val") %>%
+    # 2. グループ化して集計
+    group_by(年度, 日経業種中分類名, 指標) %>%
+    summarise(
+        mean = mean(val, na.rm = TRUE),
+        sd   = sd(val, na.rm = TRUE),
+        count = n(),
+        .groups = "drop" # ここでグループ化を完全解除
+    ) %>%
+    # 3. 統計項目も縦に積む（pandasのstack相当）
+    pivot_longer(cols = c(mean, sd, count), names_to = "統計項目", values_to = "値")
+
+```
+
+**pandas**
+
+Pandas では `groupby().describe()` で生成される MultiIndex カラムを `stack` で処理します。
+
+```python
+# 1. 集計 (カラムが [指標, 統計項目] のMultiIndexになる)
+target_cols = ["ROA", "ROE", "自己資本比率", "売上高営業利益率"]
+stats = df.groupby(["日経業種中分類名", "年度"])[target_cols].describe()
+
+# 2. stack で列ラベルを行インデックスに移動（縦持ち化）
+long_df = stats.stack(level=[0, 1]).reset_index()
+
+# 3. カラム名を整備
+long_df.columns = ["日経業種中分類名", "年度", "指標", "統計項目", "値"]
 
 ```
