@@ -54,9 +54,9 @@ plt.show()
 
 ### 2.1 業界全体の分布の傾向 (ヒストグラム)
 
-![](../fig/vis_dis.png)
-
 全業種の ROA（中央値）の分布を年度ごとにヒストグラムで可視化し、市場全体の収益性を俯瞰する例です。
+
+![](../fig/vis_dis.png)
 
 **R (tidyvese)**
 
@@ -196,7 +196,10 @@ plt.show()
 ```r
 # 1. まず「業界」に絞る
 df_industry <- df %>% 
-    filter(日経業種小分類名 == "電設工事")
+    filter(
+        日経業種小分類名 == "電設工事",
+        年度 >= 2020, 年度 <= 2024
+    )
 
 # 2. その中から「自社」を取り出す
 target <- df_industry %>% 
@@ -217,7 +220,13 @@ df_industry %>%
 
 ```python
 # 1. まず「業界」に絞る
-df_industry = df.loc[lambda x: x["日経業種小分類名"] == "電設工事"]
+df_industry = (
+    df
+    .loc[lambda x:
+            (x["日経業種小分類名"] == "電設工事"]) &
+            (x["年度"] >= 2020) & (x["年度"] <= 2024)
+        ]
+)
 
 # 2. その中から「自社」を取り出す
 target = df_industry.loc[lambda x: x['企業名'] == 'ダミー会社名']
