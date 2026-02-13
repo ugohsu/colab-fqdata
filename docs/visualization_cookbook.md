@@ -185,7 +185,7 @@ plt.show()
 
 ```
 
-### 2.3 分布と特定企業の強調
+### 2.3 分布と特定企業の強調 (箱ひげ図)
 
 「業界の分布」を箱ひげ図で示し、その中に「自社」がどこに位置するかを赤点で重ねて表示します。
 
@@ -246,3 +246,87 @@ plt.show()
 
 ```
 
+### 2.4 デュポン分解 (散布図)
+
+ROA を 2 分解した ATO (総資産回転率) を横軸、PM (売上高事業利益率) を縦軸にとる散布図を作成します。
+
+![](../fig/vis_ATO_PM.png)
+
+**R (ggplot2)**
+
+`stat_function` を使って、理論上の等ROA曲線（$y = k / x$）を描画します。`ggrepel` パッケージを使ってラベルの重なりを回避します (`install.packages("ggrepel")` が必要です)。
+
+```r
+library(ggrepel)
+
+# 1. データ集計
+ind_prof <- target_data %>%
+    filter(年度 == 2024) %>%
+    group_by(日経業種中分類名) %>%
+    summarise(
+        ROA = median(ROA, na.rm =TRUE),
+        ATO = median(ATO, na.rm =TRUE),
+        PM = median(PM, na.rm =TRUE),
+        .groups = "drop"
+    )
+
+# 基準線の定数 k を計算（ここでは全業種ROAの平均を使用）
+mean_roa <- mean(ind_prof$ROA, na.rm = TRUE)
+
+# 2. 描画
+ind_prof %>%
+    ggplot(mapping = aes(x = ATO, y = PM, label = 日経業種中分類名)) +
+    geom_point() +
+    geom_text_repel() +
+    stat_function(fun = function(x) mean_roa / x, color = "blue", linetype = "dashed") +
+    theme_classic()
+    
+```
+
+**Python (matplotlib + seaborn)
+
+Python では adjustText ライブラリを使用することで、R の ggrepel と同様にラベルの重なりを自動で回避できます（[!]pip install adjustText が必要です）。
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from adjustText import adjust_text
+
+# 1. データ集計
+ind_prof = (
+    df
+    .loc[lambda x: x["年度"] == 2024]
+    .groupby("日経業種中分類名", as_index=False)
+    .agg(
+        ROA=("ROA", "median"),
+        ATO=("ATO", "median"),
+        PM=("PM", "median")
+    )
+)
+
+# 2. 描画
+fig, ax = plt.subplots(figsize=(9, 6))
+
+# 散布図
+sns.scatterplot(data=ind_prof, x="ATO", y="PM", ax=ax)
+
+# 等ROA曲線 (y = k / x)
+# 基準として「業種ROAの平均」を使用
+k = ind_prof["ROA"].mean()
+x_range = np.linspace(ind_prof["ATO"].min(), ind_prof["ATO"].max(), 100)
+y_curve = k / x_range
+
+ax.plot(x_range, y_curve, color="blue", linestyle="--", linewidth=1, label=f"Mean ROA ({k:.1%})")
+
+# ラベルの描画と重なり回避 (adjustText)
+texts = []
+for i, row in ind_prof.iterrows():
+    texts.append(ax.text(row["ATO"], row["PM"], row["日経業種中分類名"], fontsize=9))
+
+# 引き出し線（矢印）を付けつつ、よしなに配置を調整
+adjust_text(texts, arrowprops=dict(arrowstyle="-", color='gray', lw=0.5))
+
+plt.show()
+
+```
