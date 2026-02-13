@@ -29,7 +29,7 @@ library(tidyverse)
 
 # 例: 業種ごとに ROA の上下 1% を残す (範囲外を除外)
 df_trimmed <- df %>%
-    group_by(年度, 日経業種小分類名) %>%
+    group_by(年度, 日経業種中分類名) %>%
     filter(
         # NAは保持 | 下限より大きい & 上限より小さい
         is.na(ROA) | 
@@ -69,8 +69,8 @@ def get_trim_mask(df, col, group_cols, limits=[0.01, 0.01]):
 # --- 実行例 ---
 
 # 複数の変数に対して個別の条件でマスクを作成
-mask_roa = get_trim_mask(df, "ROA", group_cols=["年度", "日経業種小分類名"], limits=[0.01, 0.01])
-mask_sales = get_trim_mask(df, "売上高", group_cols=["年度", "日経業種小分類名"], limits=[0, 0.01])
+mask_roa = get_trim_mask(df, "ROA", group_cols=["年度", "日経業種中分類名"], limits=[0.01, 0.01])
+mask_sales = get_trim_mask(df, "売上高", group_cols=["年度", "日経業種中分類名"], limits=[0, 0.01])
 
 # すべての条件を満たす行のみを抽出 (Trim)
 df_trimmed = df[mask_roa & mask_sales]
@@ -99,7 +99,7 @@ winsorize_scipy <- function(x, limits = c(0.01, 0.01), na.rm = TRUE) {
 
 # 実行例
 df_winsorized <- df %>%
-    group_by(年度, 日経業種小分類名) %>%
+    group_by(年度, 日経業種中分類名) %>%
     mutate(
         # 上下 1% を畳み込み
         ROA = winsorize_scipy(ROA, limits = c(0.01, 0.01))
@@ -116,7 +116,7 @@ from scipy.stats.mstats import winsorize
 # transform でグループごとに適用する
 df["ROA_win"] = (
     df
-    .groupby(["年度", "日経業種小分類名"])["ROA"]
+    .groupby(["年度", "日経業種中分類名"])["ROA"]
     .transform(lambda x: winsorize(x, limits=[0.01, 0.01]))
 )
 
