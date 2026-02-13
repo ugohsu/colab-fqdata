@@ -133,7 +133,7 @@ plt.show()
 
 ![](../fig/vis_rel.png)
 
-**R (tidyverse)**
+**R (ggplot2)**
 
 ```r
 # 1. データ準備
@@ -191,7 +191,7 @@ plt.show()
 
 ![](../fig/vis_box.png)
 
-**R (tidyverse)**
+**R (ggplot2)**
 
 ```r
 # 1. まず「業界」に絞る
