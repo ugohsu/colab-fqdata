@@ -21,13 +21,27 @@ ggplot(data = df, mapping = aes(x = 年度, y = ROA)) +
 
 ### 1.2 Python: matplotlib + seaborn
 
-`plt.subplots()` で枠（ax）を作り、そこに `sns.xxx(..., ax=ax)` で描画し、最後に `plt.show()` で表示するスタイルです。
+Seaborn には、目的の複雑さに応じて 2 つの描画スタイル（関数）があります。
+
+1. **Figure-level 関数** (`displot`, `relplot` 等)
+    * 図全体を自動で生成・管理します。
+    * グラフの分割表示（Facet）や、単純なグラフを手早く描くのに適しています。
+
+
+2. **Axes-level 関数** (`boxplot`, `lineplot` 等)
+    * `plt.subplots()` で作った枠 (`ax`) を指定して描画します。
+    * 複数のグラフを重ねたり、Matplotlib の機能で細かいレイアウト調整をするのに適しています。
+
+
+本クックブックでは、シンプルな可視化には前者を、重ね書き等の調整が必要な場合は後者を採用します。
+
+**基本形（Axes-level）：枠を作って描画するスタイル**
 
 ```python
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# 基本形: 枠を作って、箱ひげ図を描く
+# 枠 (ax) を用意して、そこに描画する
 fig, ax = plt.subplots()
 sns.boxplot(data=df, x="年度", y="ROA", ax=ax)
 plt.show()
@@ -38,11 +52,86 @@ plt.show()
 
 ## 2. 実践レシピ
 
-### 2.1 時系列推移の比較（折れ線グラフ）
+### 2.1 業界全体の分布の傾向 (ヒストグラム)
+
+![](../fig/vis_dis.png)
+
+全業種の ROA（中央値）の分布を年度ごとにヒストグラムで可視化し、市場全体の収益性を俯瞰する例です。
+
+**R (tidyvese)**
+
+```r
+# 1. データ集計
+ind_ROA_median <- df %>%
+    filter(年度 >= 2022, 年度 <= 2024) %>%
+    group_by(年度, 日経業種小分類名) %>%
+    summarise(
+        ROA_median = median(ROA, na.rm = TRUE),
+        count = n(),
+        .groups = "drop"
+    ) %>%
+    filter(
+        count >= 5, # 企業数が少なすぎる業種は除外
+        !str_detect(日経業種小分類名, "その他") # 「その他」系を除外
+    )
+    
+# 2. 描画
+ind_ROA_median %>%
+    ggplot(mapping = aes(x = ROA_median)) +
+    geom_histogram(fill = "gray90", color = "black", bins = 18) +
+    facet_wrap(~ 年度, ncol = 1) +
+    theme_light()
+
+```
+
+**Python (matplotlib + seaborn)**
+
+分布 (Distribution) を可視化するための関数 `displot()` を使います。
+
+```python
+# 1. データ集計
+ind_ROA_median = (
+    df
+    # filter(年度 >= 2022, 年度 <= 2024)
+    .loc[lambda x: (x["年度"] >= 2022) & (x["年度"] <= 2024)]
+    
+    # group_by(年度, 日経業種小分類名)
+    .groupby(["年度", "日経業種小分類名"], as_index=False)
+    
+    # summarise(...)
+    .agg(
+        ROA_median=("ROA", "median"), # median(ROA)
+        count=("ROA", "count")        # n()
+    )
+    
+    # filter(count >= 5, !str_detect(...))
+    .loc[lambda x: 
+        (x["count"] >= 5) & 
+        (~x["日経業種小分類名"].str.contains("その他", na=False)) # ~ が否定(!)
+    ]
+)
+
+# 2. 描画
+sns.displot(
+    data=ind_ROA_median,
+    x="ROA_median",
+    row="年度",         # 分割のキー
+    kind="hist",        # ヒストグラム
+    bins=18,            # 階級数
+    color="lightgray",  # fill="gray90" 相当
+    edgecolor="black",  # color="black" 相当
+    aspect=2.5          # 横幅の比率 (高さ x aspect = 横幅)
+)
+
+plt.show()
+
+```
+
+### 2.2 時系列推移の比較（折れ線グラフ）
 
 特定業種の ROA（中央値）の推移を比較する、基本的な折れ線グラフの例です。
 
-![](../fig/vis2.1.png)
+![](../fig/vis_rel.png)
 
 **R (tidyverse)**
 
@@ -67,6 +156,8 @@ ggplot(df_trend, aes(x = 年度, y = ROA_median, color = 日経業種中分類�
 
 **Python (matplotlib + seaborn)**
 
+関係 (Relationship) を可視化するための関数 `relplot()` を使います。
+
 ```python
 # 1. データ準備
 target_inds = ["食品", "医薬品", "小売業"]
@@ -82,27 +173,23 @@ df_trend = (
 )
 
 # 2. 描画
-fig, ax = plt.subplots(figsize=(8, 5))
-
-sns.lineplot(
+g = sns.relplot(
     data=df_trend, 
     x="年度", y="ROA_median", 
-    hue="日経業種中分類名", 
-    ax=ax
+    hue="日経業種中分類名",
+    kind="line"
 )
 
-ax.set_xticks(range(2020, 2025))
+g.set(xticks=range(2020, 2025)) # 軸の調整
 plt.show()
 
 ```
 
+### 2.3 分布と特定企業の強調
 
+「業界の分布」を箱ひげ図で示し、その中に「自社」がどこに位置するかを赤点で重ねて表示します。
 
-### 2.2 分布と特定企業の強調
-
-「業界全体の分布」を箱ひげ図で示し、その中に「自社」がどこに位置するかを赤点で重ねて表示します。
-
-![](../fig/vis2.2.png)
+![](../fig/vis_box.png)
 
 **R (tidyverse)**
 
