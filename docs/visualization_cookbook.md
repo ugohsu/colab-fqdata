@@ -283,7 +283,7 @@ ind_prof %>%
     
 ```
 
-**Python (matplotlib + seaborn)
+**Python (matplotlib + seaborn)**
 
 Python では adjustText ライブラリを使用することで、R の ggrepel と同様にラベルの重なりを自動で回避できます（[!]pip install adjustText が必要です）。
 
