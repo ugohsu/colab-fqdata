@@ -90,7 +90,7 @@ class FqLoader:
     def read_sql(self, sql: str, filter_list: Union[Iterable[Any], None] = None, key_col: str = "証券コード"):
         """
         任意のSQLクエリを実行し、DataFrameを返す。
-        filter_list が指定された場合、一時テーブルを作成して key_col で絞り込む。
+        filter_list が指定された場合、Pandasでフィルタリングするため、ソート順が完全に保証される。
         
         Args:
             sql (str): 実行したいSELECT文（年度絞り込みなどはここに書く）
@@ -108,6 +108,12 @@ class FqLoader:
             return df
         
         # --- リスト絞り込みモード ---
+
+        if key_col not in df.columns:
+            raise ValueError(
+                f"【エラー】絞り込みを行うため、SQLのSELECT句に必ず '{key_col}' を含めてください。\n"
+                f"例: SELECT {key_col}, 売上高 FROM ..."
+            )
 
         # 2. 前処理: 文字列型に統一       
         clean_codes = [str(c).strip() for c in filter_list if pd.notna(c)]
