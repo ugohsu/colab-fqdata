@@ -100,45 +100,26 @@ class FqLoader:
         # クエリの末尾のセミコロンを除去（サブクエリ化でエラーになるため）
         clean_sql = sql.strip().rstrip(';')
         
+        # 1. まずユーザーのSQLをそのまま実行してデータフレームを取得（ORDER BYを維持）
+        df = pd.read_sql(clean_sql, self.conn)
+        
         if filter_list is None:
-            # リストがない場合はそのまま実行
-            return pd.read_sql(clean_sql, self.conn)
+            # リストがない場合はそのまま返す
+            return df
         
         # --- リスト絞り込みモード ---
-        
-        # 1. 前処理: 文字列型に統一
+
+        # 2. 前処理: 文字列型に統一       
         clean_codes = [str(c).strip() for c in filter_list if pd.notna(c)]
         
         if not clean_codes:
-            # リストが空の場合は空のDFを返す（あるいはエラーにする）
-            return pd.DataFrame()
-
-        try:
-            with self.conn:
-                # 2. 一時テーブル作成
-                self.conn.execute("CREATE TEMP TABLE IF NOT EXISTS _temp_filter_keys (code TEXT PRIMARY KEY)")
-                self.conn.execute("DELETE FROM _temp_filter_keys")
-                
-                # 3. 高速流し込み
-                self.conn.executemany(
-                    "INSERT OR IGNORE INTO _temp_filter_keys (code) VALUES (?)", 
-                    [(c,) for c in clean_codes]
-                )
-                
-                # 4. ユーザーSQLをラップして結合
-                #    ユーザーのSQL結果(UserQuery) と 一時テーブル(Filter) を JOIN
-                wrapper_query = f"""
-                    SELECT UserQuery.*
-                    FROM ({clean_sql}) AS UserQuery
-                    INNER JOIN _temp_filter_keys AS Filter
-                    ON UserQuery.{key_col} = Filter.code
-                """
-                
-                return pd.read_sql(wrapper_query, self.conn)
-                
-        finally:
-            # クリーンアップ（必須ではないがメモリ節約のため）
-            self.conn.execute("DROP TABLE IF EXISTS _temp_filter_keys")
+            # リストが空の場合はカラム構造だけを維持した空のDFを返す
+            return pd.DataFrame(columns=df.columns)
+            
+        # 3. Pandas側で絞り込み（行の削除のみなのでソート順が完全に維持される）
+        filtered_df = df[df[key_col].astype(str).isin(clean_codes)]
+        
+        return filtered_df.reset_index(drop=True)
 
     def close(self):
         if self.conn:
