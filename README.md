@@ -112,6 +112,7 @@ from colab_fqdata import FqLoader
 | --- | --- | --- |
 | **Schema** | データベース定義書（テーブル構造・カラム定義・ER図） | [`docs/standard_schema.md`](docs/standard_schema.md) |
 | **Release notes** | `standard.db` の再構築履歴（スキーマ変更・既知の問題） | [`docs/db_release_notes.md`](docs/db_release_notes.md) |
+| **AI活用** | 自分専用のAIアドバイザの作り方（カスタム指示・添付ファイル） | [`docs/ai_tutor_setup.md`](docs/ai_tutor_setup.md) |
 | **Cookbook** | 財務データ操作クックブック（SQL / R / Python 対応表・レシピ集） | [`docs/query_cookbook.md`](docs/query_cookbook.md) |
 | **Cookbook** | 財務データ可視化クックブック（ggplot2 / matplotlib / seaborn） | [`docs/visualization_cookbook.md`](docs/visualization_cookbook.md) |
 | **Cookbook** | 前処理クックブック (R / Python) | [`docs/preprocess_cookbook.md`](docs/preprocess_cookbook.md) |
