@@ -26,9 +26,47 @@ class FqLoader:
         """
         self.conn = None
         self.db_path = self._resolve_db_path(db_source, force_download)
-        
+
         # 読み取り専用で接続
         self.conn = sqlite3.connect(f"file:{self.db_path}?mode=ro", uri=True)
+
+        # ビルド情報 (取得時点・収録範囲・件数) の読み込みと簡易表示
+        self.meta = self._load_meta()
+        if self.meta is not None:
+            print(
+                f"[FqLoader] standard.db を読み込みました "
+                f"(ビルド日時: {self.meta.get('build_datetime')}, "
+                f"収録期間: {self.meta.get('fq_period_min')}〜{self.meta.get('fq_period_max')}, "
+                f"企業数: {self.meta.get('n_companies_standard')}, "
+                f"観測数: {self.meta.get('n_observations')})"
+            )
+        else:
+            print(
+                "[FqLoader] standard.db を読み込みました "
+                "(注意: Meta テーブルが見つかりません。古いバージョンのDBの可能性があります)"
+            )
+
+    def _load_meta(self):
+        """Meta テーブル（ビルド情報）を1行読み込んで dict で返す。無ければ None。"""
+        try:
+            df = pd.read_sql("SELECT * FROM Meta LIMIT 1", self.conn)
+            if df.empty:
+                return None
+            return df.iloc[0].to_dict()
+        except Exception:
+            return None
+
+    def info(self):
+        """
+        DBのビルド情報（取得時点・収録範囲・件数など）を表示し、dictでも返す。
+        論文等に取得時点・観測数を明記する際に利用する。
+        """
+        if self.meta is None:
+            print("Meta テーブルが見つからないため、ビルド情報は表示できません。")
+            return None
+        for k, v in self.meta.items():
+            print(f"  {k}: {v}")
+        return self.meta
 
     def _resolve_db_path(self, db_source, force_download):
         """URLならダウンロードし、ローカルパスならそのまま返す"""
